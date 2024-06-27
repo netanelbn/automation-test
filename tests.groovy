@@ -6,8 +6,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh "cd automation"
-                sh "mvn compile"
+                sh "cd automation; mvn compile"
             }
         }
         stage('Run') {
