@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh "javac automation/src/test/java/openSite.java"
+                sh "mvn compile"
             }
         }
         stage('Run') {
