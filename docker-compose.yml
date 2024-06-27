@@ -13,22 +13,44 @@ services:
 #      - /var/run/docker.sock:/var/run/docker.sock
 
   selenoid:
-    image: aerokube/selenoid:latest-release
-    command: -conf /etc/selenoid/browsers.json -video-output-dir /opt/selenoid/video -log-output-dir /opt/selenoid/logs
-    network_mode: bridge
+    image: "aerokube/selenoid:latest"
+    container_name: selenoid
     ports:
-      - 5656:4444
-    environment:
-      OVERRIDE_VIDEO_OUTPUT_DIR: /opt/selenoid/video
+      - "4445:4444"
+    networks:
+      - selenoid
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./selenoid/video:/opt/selenoid/video
-      - ./selenoid/logs:/opt/selenoid/logs
-      - ./selenoid/browsers.json:/etc/selenoid/browsers.json:ro
-
+      - ".:/etc/selenoid"
+      - "./target:/output"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./target:/opt/selenoid/video"
+    environment:
+      - "OVERRIDE_VIDEO_OUTPUT_DIR=$PWD/target"
+    command: [ "-conf", "/etc/selenoid/browsers.json", "-video-output-dir", "/opt/selenoid/video", "-container-network", "selenoid" ]
   selenoid-ui:
-    image: aerokube/selenoid-ui:latest-release
-    command: --selenoid-uri http://selenoid:4444
-    network_mode: bridge
+    image: "aerokube/selenoid-ui:latest"
+    container_name: selenoid-ui
+    links:
+      - selenoid
     ports:
-      - 5599:8000
+      - "8083:8000"
+    networks:
+      - selenoid
+    command: [ "--selenoid-uri", "http://selenoid:4444" ]
+  chrome_79.0:
+    image: "selenoid/vnc:chrome_79.0"
+    container_name: chrome_79.0
+    links:
+      - selenoid
+      - selenoid-ui
+    depends_on:
+      - selenoid
+      - selenoid-ui
+    networks:
+      - selenoid
+    volumes:
+      - "/dev/shm:/dev/shm"
+networks:
+  selenoid:
+    external:
+      name: selenoid
