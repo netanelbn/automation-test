@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                javac openSite.java
+                sh "javac automation/src/test/java/openSite.java"
             }
         }
         stage('Run') {
