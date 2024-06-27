@@ -14,6 +14,8 @@ public class openBrowser {
         // Instantiate a ChromeDriver class.
         WebDriver driver=new ChromeDriver();
 
+
+
         // Launch Website
         driver.navigate().to("http://www.javatpoint.com/");
 
